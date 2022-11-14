@@ -1,0 +1,15 @@
+sudo: required
+services:
+  - docker
+
+before_install: 
+  - docker build -t ozarembovskyi/react-test -f ./client/Dockerfile.dev ./client
+
+script: 
+  - docker run ozarembovskyi/react-test npm test -- --coverage
+
+after_success: 
+  - docker build -t ozarembovskyi/multi-client ./client
+  - docker build -t ozarembovskyi/multi-nginx ./nginx
+  - docker build -t ozarembovskyi/multi-server ./server
+  - docker build -t ozarembovskyi/multi-worker ./worker
