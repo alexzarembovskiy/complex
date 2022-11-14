@@ -1,3 +1,4 @@
+language: generic 
 sudo: required
 services:
   - docker
@@ -6,10 +7,17 @@ before_install:
   - docker build -t ozarembovskyi/react-test -f ./client/Dockerfile.dev ./client
 
 script: 
-  - docker run ozarembovskyi/react-test npm test -- --coverage
+  - docker run -e CI=true ozarembovskyi/react-test npm test
 
 after_success: 
   - docker build -t ozarembovskyi/multi-client ./client
   - docker build -t ozarembovskyi/multi-nginx ./nginx
   - docker build -t ozarembovskyi/multi-server ./server
   - docker build -t ozarembovskyi/multi-worker ./worker
+  # Log in to the Docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Push the images to Docker Hub
+  - docker push ozarembovskyi/multi-client
+  - docker push ozarembovskyi/multi-nginx
+  - docker push ozarembovskyi/multi-server
+  - docker push ozarembovskyi/multi-worker
